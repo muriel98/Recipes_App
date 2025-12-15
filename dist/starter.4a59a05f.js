@@ -733,13 +733,13 @@ const controlRecipes = async function() {
         //2. Render recipe
         (0, _recipeViewJsDefault.default).render(_modelJs.state.recipe);
     } catch (err) {
-        alert(err);
+        (0, _recipeViewJsDefault.default).renderError(`${err} miii error `);
     }
 };
-[
-    'hashchange',
-    'load'
-].forEach((ev)=>window.addEventListener(ev, controlRecipes));
+const init = function() {
+    (0, _recipeViewJsDefault.default).addHandlerRender(controlRecipes);
+};
+init();
 
 },{"core-js/modules/web.immediate.js":"bzsBv","regenerator-runtime/runtime":"f6ot0","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT","./model.js":"3QBkH","./views/recipeView.js":"3wx5k"}],"bzsBv":[function(require,module,exports,__globalThis) {
 'use strict';
@@ -2635,7 +2635,7 @@ const loadRecipe = async function(id) {
         };
         console.log(state.recipe);
     } catch (err) {
-        console.log(`${err} MIO`);
+        throw error;
     }
 };
 
@@ -2684,16 +2684,48 @@ console.log((0, _fractyDefault.default));
 class RecipeView {
     #parentElement = document.querySelector('.recipe');
     #data;
+    #errorMessage = 'Sorry, we could not find that recipe';
+    #message = '';
     render(data) {
         this.#data = data;
         const markup = this.#generateMarkup();
         this.#clear;
         this.#parentElement.insertAdjacentHTML('afterbegin', markup);
     }
+    renderError(message = this.#errorMessage) {
+        const markup = `<div class="error">
+            <div>
+              <svg>
+                <use href="${(0, _iconsSvgDefault.default)}#icon-alert-triangle"></use>
+              </svg>
+            </div>
+            <p>${message} </p>
+          </div> `;
+        this.#clear();
+        this.#parentElement.insertAdjacentHTML('afterbegin', markup);
+    }
+    renderMessage(message = this.#message) {
+        const markup = `<div class="message">
+            <div>
+              <svg>
+                <use href="${(0, _iconsSvgDefault.default)}#icon-smile"></use>
+              </svg>
+            </div>
+            <p>${message} </p>
+          </div> `;
+        this.#clear();
+        this.#parentElement.insertAdjacentHTML('afterbegin', markup);
+    }
+    addHandlerRender(handler) {
+        [
+            'hashchange',
+            'load'
+        ].forEach((ev)=>window.addEventListener(ev, handler));
+    }
     #clear() {
         this.#parentElement.innerHTML = '';
     }
-    renderSpinner = function() {
+    renderSpinner() {
         const markup = `<div class="spinner">
           <svg>
             <use href="${(0, _iconsSvgDefault.default)}.svg#icon-loader"></use>
@@ -2701,7 +2733,7 @@ class RecipeView {
         </div>`;
         this.#parentElement.innerHTML = '';
         this.#parentElement.insertAdjacentHTML('afterbegin', markup);
-    };
+    }
     #generateMarkup() {
         return `
         <figure class="recipe__fig">
